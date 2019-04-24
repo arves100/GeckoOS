@@ -90,13 +90,12 @@ nofileloop:
 void menu_scandir()
 //---------------------------------------------------------------------------------
 {
-	char filename[MAXPATHLEN];
 	char tempfilename[MAXPATHLEN];
 
-	DIR_ITER *pdir;
-	struct stat fstat;
+	DIR *pdir;
+	struct dirent* fstat = NULL;
 
-	pdir=diropen("/files");
+	pdir=opendir("sd:/files");
 
 	if( filelist == NULL )
 	{
@@ -108,13 +107,18 @@ void menu_scandir()
 	numfiles = 0;
 	idcount = 0;
 
-	while( dirnext(pdir, filename, &fstat ) == 0 )
+	while ((fstat = readdir(pdir)) != NULL)
 	{
-		
-		// if directory then continue
-		if( fstat.st_mode & S_IFDIR ){
+		struct stat statbuf;
+
+		if(strcmp(".", fstat->d_name) == 0 || strcmp("..", fstat->d_name) == 0)
 			continue;
-		}
+		
+		stat(fstat->d_name, &statbuf);
+
+		// if directory then continue
+		if(S_ISDIR(statbuf.st_mode))
+			continue;
 
 		if( numfiles == afiles )
 		{
@@ -122,59 +126,57 @@ void menu_scandir()
 			filelist = realloc(filelist, afiles * sizeof( struct foundfile ) );
 		}
 
-		filename[MAXPATHLEN-1] = 0;
-		
-		strncpy(tempfilename, filename, MAXPATHLEN );
+		strncpy(tempfilename, fstat->d_name, MAXPATHLEN );
 
 		int i = strlen(tempfilename);	// get length of files
 		
-		if(stricmp(&tempfilename[i-4], ".dol") == 0)
+		if(strcasecmp(&tempfilename[i-4], ".dol") == 0)
 		{
 			filelist[numfiles].name[MAXPATHLEN-1] = 0;
 			strncpy(filelist[numfiles].showname, tempfilename, 40 );
 			filelist[numfiles].showname[39] = 0;
-			filelist[numfiles].size = fstat.st_size;
+			filelist[numfiles].size = statbuf.st_size;
 			filelist[numfiles].type = 0;
 			filelist[numfiles].id = idcount;
 			idcount++;
 			numfiles++;
 		}
 
-		if(stricmp(&tempfilename[i-4], ".elf") == 0)
+		if(strcasecmp(&tempfilename[i-4], ".elf") == 0)
 		{
 			filelist[numfiles].name[MAXPATHLEN-1] = 0;
 			strncpy(filelist[numfiles].showname, tempfilename, 40 );
 			filelist[numfiles].showname[39] = 0;
-			filelist[numfiles].size = fstat.st_size;
+			filelist[numfiles].size = statbuf.st_size;
 			filelist[numfiles].type = 1;
 			filelist[numfiles].id = idcount;
 			idcount++;
 			numfiles++;
 		}
 
-		if(stricmp(&tempfilename[i-4], ".wad") == 0)
+		if(strcasecmp(&tempfilename[i-4], ".wad") == 0)
 		{
 			filelist[numfiles].name[MAXPATHLEN-1] = 0;
 			strncpy(filelist[numfiles].showname, tempfilename, 40 );
 			filelist[numfiles].showname[39] = 0;
-			filelist[numfiles].size = fstat.st_size;
+			filelist[numfiles].size = statbuf.st_size;
 			filelist[numfiles].type = 2;
 			filelist[numfiles].id = idcount;
 			idcount++;
 			numfiles++;
 		}
 
-		if(stricmp(&tempfilename[i-4], ".mp3") == 0)
+		if(strcasecmp(&tempfilename[i-4], ".mp3") == 0)
 		{
 			filelist[numfiles].name[MAXPATHLEN-1] = 0;
 			strncpy(filelist[numfiles].showname, tempfilename, 40 );
 			filelist[numfiles].showname[39] = 0;
-			filelist[numfiles].size = fstat.st_size;
+			filelist[numfiles].size = statbuf.st_size;
 			filelist[numfiles].type = 3;
 			filelist[numfiles].id = idcount;
 			idcount++;
 			numfiles++;
 		}
 	}
-	dirclose( pdir );
+	closedir( pdir );
 }

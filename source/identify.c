@@ -229,8 +229,7 @@ void codehandler_rebooter()
 	}
 	
 	WPAD_Shutdown();
-	sdio_Shutdown();
-	
+
 	ret = Menu_identify();
 	if(!ret)
 	{
@@ -242,7 +241,7 @@ void codehandler_rebooter()
 	rebooter_thread_state |= 2;
 }
 
-void codehandler_channel()
+void* codehandler_channel(void* pUserData)
 {
 	s32 ret;
 	/*u32 count;
@@ -320,8 +319,7 @@ void codehandler_channel()
 	foundtitle:*/
 	
 	WPAD_Shutdown();
-	sdio_Shutdown();
-	
+
 	// Check that identify works
 	ret = Channel_identify();
 	if(!ret)
@@ -334,6 +332,8 @@ void codehandler_channel()
 	
 	sleep(1);
 	channel_thread_state |= 2;
+
+	return NULL;
 }
 
 void boot_menu()

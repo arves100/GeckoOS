@@ -8,9 +8,6 @@ bool isIOSstub(u8 ios_number);
 extern void _unstub_start();
 extern void jumpentry(u32 entryp);
 extern void enableLegacyDI();
-extern bool sdio_Startup(void);
-extern bool sdio_Deinitialize(void);
-extern bool sdio_Shutdown(void);
 extern void __exception_closeall();
 extern s32 __IOS_InitializeSubsystems();
 //---------------------------------------------------------------------------------

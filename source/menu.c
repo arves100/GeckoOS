@@ -57,7 +57,7 @@ u32 error_video = 0;
 int help_menu_selected = 0;
 typedef struct{char *hitems; int selected;} helpitems;
 helpitems helpmenu[]=
-	{{"Gecko 1.9.3.1",0}};
+	{{"Gecko 1.9.3.2",0}};
 
 // Root Menu
 #define root_menu_items 7
@@ -1860,7 +1860,6 @@ static void menu_drawapp()
 			apploader_thread_close(); // close thread
 			VIDEO_SetBlack(TRUE);
 			VIDEO_Flush();
-			sdio_Deinitialize();
 			SYS_ResetSystem(SYS_SHUTDOWN,0,0);
 			if (config_bytes[2] == 0)
 			{
@@ -2035,7 +2034,6 @@ static void menu_drawrebooter()
 			rebooter_thread_close();
 			
 			boot_menu();
-			sdio_Shutdown();
 			SYS_ResetSystem(SYS_SHUTDOWN,0,0);
 			if (config_bytes[2] != 0x00)
 			{
@@ -2172,7 +2170,6 @@ static void menu_drawbootchannel()
 			break;
 		case 2:
 			channel_thread_close();
-			sdio_Deinitialize();
 			
 			boot_channel();
 			SYS_ResetSystem(SYS_SHUTDOWN,0,0);
@@ -2566,9 +2563,7 @@ s32 menu_generatechannellist(bool preinit)
 	char *filename;
 	FILE *fp;
 	
-	if (!preinit)
-		sdio_Shutdown();
-	else
+	if (preinit)
 		IOS_ReloadIOS(IOS_GetVersion()); // Reset IOS, needed for some buggy cIOS versions
 	if (identify_SU() < 0)
 		return 0;
@@ -2753,7 +2748,6 @@ s32 menu_generatechannellist(bool preinit)
 	}
 	
 	ISFS_Deinitialize();
-	if (preinit) sdio_Shutdown();
 	
 	return 1;
 }

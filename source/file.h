@@ -2,6 +2,9 @@
 #define _FILE_H_
 #include <gccore.h>
 
+// powerpc-none-eabi-gcc reported this through warnings. There is an extra one for the null terminatior.
+#define MAXPATHLEN 768
+
 //---------------------------------------------------------------------------------
 struct foundfile
 {

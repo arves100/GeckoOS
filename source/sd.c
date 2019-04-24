@@ -20,9 +20,7 @@ void sd_refresh()
 {
 	s32 ret = 0;
 	u32 geckoidcheck;
-	
-	sdio_Deinitialize();
-	
+
 	ret = sd_init();
 	if(ret){
 		sd_found = 1;
@@ -94,15 +92,15 @@ u32 sd_init()
 void sd_check_mkdir(char *path)
 //---------------------------------------------------------------------------------
 {
-	DIR_ITER *pdir;
+	DIR *pdir;
 
-	pdir = diropen(path);
+	pdir = opendir(path);
 	if(pdir == NULL){
 		mkdir(path, 0);
 		return;
 	}
 
-	dirclose(pdir);
+	closedir(pdir);
 }
 
 //---------------------------------------------------------------------------------

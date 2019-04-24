@@ -35,7 +35,6 @@ void load_geckoexe(u32 mode) // 0 for DOL, 1 for ELF, 2 for DOL debug, 3 for ELF
 	u8 ack_packet = 0xAA;
 	
 	WPAD_Shutdown();
-	sdio_Shutdown();
 
 	usb_sendbuffer_safe(gecko_channel,&ack_packet,1);
 

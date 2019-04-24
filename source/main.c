@@ -103,7 +103,6 @@ void loadStartupIOS()
 {
 	if (!startupiosloaded)
 	{
-		sdio_Shutdown();
 		if (IOS_GetVersion() != 36) IOS_ReloadIOS(36);
 		detectIOScapabilities();
 		

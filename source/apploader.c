@@ -29,10 +29,10 @@
 #include "identify.h"
 #include "main.h"
 
-#define PATCHDIR		"sd:/patch"
-#define GECKOPATCHDIR	"sd:/data/gecko/patch"
-#define CODEDIR			"sd:/codes"
-#define GECKOCODEDIR	"sd:/data/gecko/codes"
+#define PATCHDIR		"sd:/patch/"
+#define GECKOPATCHDIR	"sd:/data/gecko/patch/"
+#define CODEDIR			"sd:/codes/"
+#define GECKOCODEDIR	"sd:/data/gecko/codes/"
 #define GAMECONFIG		"sd:/gameconfig.txt"
 #define GECKOGAMECONFIG	"sd:/data/gecko/gameconfig.txt"
 #define DIAGFILE		"sd:/diagnostic.txt"
@@ -134,9 +134,9 @@ void app_dopatch(char *filename)
 	u32 ret, pathlen;
 	u32 filesize;
 
-	DIR_ITER* pdir = diropen ("/data/gecko/patch/");
+	DIR* pdir = opendir (GECKOPATCHDIR);
 	if(pdir == NULL){
-		pdir = diropen ("/patch/");
+		pdir = opendir (PATCHDIR);
 		if(pdir == NULL){
 			app_thread_state = 9;	// dir not found
 			channel_thread_state = 4;
@@ -145,14 +145,14 @@ void app_dopatch(char *filename)
 		}
 	}
 
-	dirclose(pdir);
+	closedir(pdir);
 	fflush(stdout);
 	
-	sprintf(filepath, GECKOPATCHDIR "/%s.gpf", filename);
+	sprintf(filepath, GECKOPATCHDIR "%s.gpf", filename);
 	
 	fp = fopen(filepath, "rb");
 	if (!fp) {
-		sprintf(filepath, PATCHDIR "/%s.gpf", filename);
+		sprintf(filepath, PATCHDIR "%s.gpf", filename);
 		
 		fp = fopen(filepath, "rb");
 		if (!fp) {
@@ -196,23 +196,23 @@ void app_copycodes(char *filename)
 	u32 ret, pathlen;
 	u32 filesize;
 	
-	DIR_ITER* pdir = diropen ("/data/gecko/codes/");
+	DIR* pdir = opendir (GECKOCODEDIR);
 	if(pdir == NULL){
-		pdir = diropen ("/codes/");
+		pdir = opendir (CODEDIR);
 		if(pdir == NULL){
 			codes_state = 1;	// dir not found
 			return;
 		}
 	}
 	
-	dirclose(pdir);
+	closedir(pdir);
 	fflush(stdout);
 	
-	sprintf(filepath, GECKOCODEDIR "/%s.gct", filename);
+	sprintf(filepath, GECKOCODEDIR "%s.gct", filename);
 	
 	fp = fopen(filepath, "rb");
 	if (!fp) {
-		sprintf(filepath, CODEDIR "/%s.gct", filename);
+		sprintf(filepath, CODEDIR "%s.gct", filename);
 		
 		fp = fopen(filepath, "rb");
 		if (!fp) {
@@ -612,7 +612,6 @@ void app_loadgameconfig(char *gameid)
 						if (ret == 1)
 							if (temp >= 0 && temp <= 255)
 							{
-								sdio_Shutdown();
 								IOS_ReloadIOS(temp);
 								detectIOScapabilities();
 								sd_init();
@@ -980,7 +979,7 @@ void load_handler()
 }
 
 //---------------------------------------------------------------------------------
-u32 dvd_switchios()
+void* dvd_switchios(void* pUserData)
 //---------------------------------------------------------------------------------
 {
 	void (*app_init)(void (*report)(const char* fmt, ...));
@@ -1095,8 +1094,7 @@ u32 dvd_switchios()
 		app_thread_state = 5;
 	else
 	{
-		fatUnmount("sd");
-		sdio_Deinitialize();
+		//fatUnmount("sd");
 		if (dvdios == 249) dvdios = 36;
 		ret = IOS_ReloadIOS(dvdios);
 		if(ret < 0){
@@ -1286,8 +1284,7 @@ u32 dvd_switchios()
 		app_writediag((void *) app_init, (void *) app_main, (void *) app_final, (void *) app_entry);
 		if (!fp)
 		{
-			fatUnmount("sd");
-			sdio_Deinitialize();
+			//fatUnmount("sd");
 			STM_RebootSystem();
 		}
 	}
@@ -1296,8 +1293,7 @@ u32 dvd_switchios()
 	{
 		fwrite((void *) 0x80000000, ((u32) maindolend) - 0x80000000, 1, fp);
 		fclose(fp);
-		fatUnmount("sd");
-		sdio_Deinitialize();
+		//fatUnmount("sd");
 		STM_RebootSystem();
 	}
 
@@ -1353,7 +1349,7 @@ u32 dvd_switchios()
 	app_thread_state = 8;	// shut down
 
 	while(1);
-	return;
+	return NULL;
 }
 
 void apploader_thread_close()

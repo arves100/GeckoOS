@@ -16,7 +16,7 @@ u32 bootid;
 
 // Function prototypes
 void codehandler_rebooter();
-void codehandler_channel();
+void* codehandler_channel(void* pUserData);
 void boot_menu();
 void boot_channel();
 void rebooter_thread_close();
